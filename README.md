@@ -252,7 +252,7 @@ comparison below.
 
 Example 1:
 
-./runHLasso -genotypes data/gen.dat -target data/phen.dat -shape 0.1 -lambda 50 -o test.R -std
+./runHLasso -genotypes data/gen.dat -target data/phen.dat -shape 0.1 -penalty 50 -o test.R -std
 
 This fits a logistic regression model to the binary trait.  Only the
 standardized SNP covariates are fitted, with an NEG prior assigned to
@@ -301,7 +301,7 @@ negative value for intercept indicates fewer cases than controls (here
 
 Example 2:
 
-./runHLasso -target data/phen.dat -covariates data/cov.dat -shape 0.1 -lambda 50 -o test.R -model_d 2 -lambda_d 0.1 -std -std_d -genotypes data\gen.dat
+./runHLasso -target data/phen.dat -covariates data/cov.dat -shape 0.1 -penalty 50 -o test.R -model_d 2 -penalty_d 0.1 -std -std_d -genotypes data\gen.dat
 
 This fits a logistic regression model, but this time with the
 non-genetic covariates as well as the SNP data, and all covariates are
@@ -324,7 +324,7 @@ estimates are now slightly higher.
 
 Example 3:
 
-./runHLasso -target data/cont_phen.dat -covariates data/cov.dat -shape .1 -lambda 100 -o test.R -lambda_d 50 -shape 0.1 -genotypes data\gen.dat -linear
+./runHLasso -target data/cont_phen.dat -covariates data/cov.dat -shape .1 -penalty 100 -o test.R -penalty_d 50 -shape 0.1 -genotypes data\gen.dat -linear
 
 This fits a linear regression model to the continuous trait using
 non-standardized SNP and covariate data. Both types of data are
