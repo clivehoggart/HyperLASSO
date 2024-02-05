@@ -1,6 +1,6 @@
 # HyperLASSO
-The HLasso: simultaneous analysis of many SNPs and covariates
--------------------------------------------------------------
+Simultaneous analysis of many SNPs and covariates using penalised regression
+----------------------------------------------------------------------------
 
 Contents of this file:
 
