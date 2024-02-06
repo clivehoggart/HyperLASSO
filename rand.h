@@ -62,3 +62,4 @@ std::vector<double> gendirichlet( std::vector<double> );
 void ddigam( double *, double * );
 ///
 void trigam( double *, double * );
+///

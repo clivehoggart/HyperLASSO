@@ -25,12 +25,12 @@
 #include <fstream>
 #include <iomanip>
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <algorithm>
 #include <vector>
 #include <cmath>
 #include <map>
+#include <string>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_matrix.h>
@@ -66,7 +66,8 @@ struct equal
             }while( j < pos1.size() && pos1[j-1] == pos2[j-1] );
          }else if( pos1.size() < pos2.size() )
             match = true;
-         return match;
+         return true;
+	 //         return match;
       }
 };
 
@@ -75,23 +76,25 @@ typedef std::map< std::vector<unsigned long>, double, equal > model_list;
 class HLasso
 {
 public:
-  HLasso( bool,
-	  char*, char*, char*,
-	  unsigned short, double, double, double,
-	  unsigned short, double, double, double,
-	  bool, bool, short, double, double, double, char*, char* );
-  void setOutputFiles( char* );
+  HLasso( bool, char*, char*, char*, char* );
+  void SetParams( unsigned short, double, double, double,
+		  unsigned short, double, double, double,
+		  bool, bool, short, double, double, double, char*, char* );
   void permute_outcome();
-   void getLogPosterior();
-   ~HLasso();
-   void runCLG( unsigned short, bool, bool );
-   void OpenOutFiles();
-   void CloseOutFiles();
-   void readFile2( const char*, const char*, bool );
-   void SetBF( const char *fname );
-   void SetGW_BF( double BF, const char *fname );
+  void getLogPosterior();
+  ~HLasso();
+  void runCLG( unsigned short, bool, bool, bool );
+  void OpenOutFiles(char*);
+  void OpenSelectionProbFile(char*);
+  void CloseOutFiles(int);
+  void readFile2( const char*, const char*, bool, bool );
+  void SetBF( const char *fname );
+  void SetGW_BF( double BF, const char *fname );
+  void SampleRows();
+  void WriteSelectionProbs(unsigned short);
 
 private:
+   std::vector<unsigned long> SelectedRows;
    unsigned short prior;
    unsigned short prior_d;
    unsigned long n;
@@ -101,15 +104,17 @@ private:
    std::vector<std::string> Labels;
    std::vector<std::string> Labels_d;
    double beta0;
-   std::vector<short> X;
+   std::vector< std::vector<bool> > X;
    std::vector<double> X_d;
    std::vector< std::vector<double> > mean;
+   std::vector< std::vector<double> > info;
    std::vector< double > mean_d;
    std::vector< std::vector<double> > sd;
    std::vector< double > sd_d;
    std::vector<bool> missing;
    std::vector<bool> missing_d;
    std::vector<bool> missing_target;
+   std::vector<unsigned long> observed_target;
    std::vector<short> y;
    std::vector<double> yy;
    std::vector<unsigned long> case_ptr;
@@ -117,13 +122,13 @@ private:
    double epsilon;
    double epsilon0;
    double epsilon1;
-   std::vector<double> lambda;
-   std::vector<double> gamma;
-   double penalty;
+   std::vector< std::vector<double> > lambda;
+   std::vector< std::vector<double> > gamma;
    double lambda_d;
    double gamma_d;
    double penalty_d;
    std::ofstream outfile;
+   std::ofstream selectionprobfile;
    std::ofstream outfile2;
    bool logistic;
    short disease_models;
@@ -139,6 +144,8 @@ private:
    double data_mean;
    double data_sd;
    std::vector<double> BF;
+   std::vector<unsigned short> SumSelected;
+   std::vector<unsigned short> SumSelected_d;
 };
 
 #endif /* !defined HLasso_H */

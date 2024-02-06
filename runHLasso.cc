@@ -25,15 +25,16 @@ using namespace std;
 int main( int argc, char* argv[] )
 {
   bool logistic=true, std=false, std_d=false, mle_start=false, permute=false;
-   short model=0, model_d=0, null=0, disease_models=1;
+  unsigned short model=0, model_d=0, null=0, disease_models=1, stability=0;
    unsigned int iter=1;
    double penalty=0.0, scale=0.0, shape=0.0, penalty_d=0.0, scale_d=0.0, shape_d=0.0, step = 0.0, alpha=0.0, alpha_d=0.0, BF = 0.0;
-   char infile[256], targetfile[256], outfile[256], infile_d[256], modefile[256], BFfile[256], GW_BFfile[256];
+   char infile[256], targetfile[256], outfile[256], infile_d[256], modefile[256], BFfile[256], GW_BFfile[256], plinkfile[256];
    *targetfile=0;
    *infile=0;
    *BFfile=0;
    *GW_BFfile=0;
    *infile_d=0;
+   *plinkfile=0;
    float threshold = 0;
    
    int na=1;
@@ -84,6 +85,11 @@ int main( int argc, char* argv[] )
          if (na+1==argc) break;
          na++;
       }
+      else if ( 0 == strcmp(argv[na],"-plink") ){
+         strcpy(plinkfile,argv[++na]);
+         if (na+1==argc) break;
+         na++;
+      }
       else if ( 0 == strcmp(argv[na],"-genotypes") ){
          strcpy(infile,argv[++na]);
          if (na+1==argc) break;
@@ -125,6 +131,11 @@ int main( int argc, char* argv[] )
          na++;
       }
       else if ( 0 == strcmp(argv[na],"-dom") ){
+         disease_models=3;
+         if (na+1==argc) break;
+         na++;
+      }
+      else if ( 0 == strcmp(argv[na],"-dom+het") ){
          disease_models=4;
          if (na+1==argc) break;
          na++;
@@ -133,6 +144,11 @@ int main( int argc, char* argv[] )
          null = atoi(argv[++na]);
          if (na+1==argc) break;
          na++;
+      }
+      else if ( 0 == strcmp(argv[na],"-stability") ){
+	stability = atoi(argv[++na]);
+	if (na+1==argc) break;
+	na++;
       }
       else if ( 0 == strcmp(argv[na],"-mlestart") ){
          mle_start = true;
@@ -152,7 +168,7 @@ int main( int argc, char* argv[] )
          if (na+1==argc) break;
          na++;
       }
-      else if ( 0 == strcmp(argv[na],"-sd")){
+      else if ( 0 == strcmp(argv[na],"-seed")){
          smyrand( (unsigned long)(atoi(argv[++na])) );
          if (na+1==argc) break;
          na++;
@@ -198,36 +214,46 @@ int main( int argc, char* argv[] )
       }
    }
 
+   if( shape > 25 )
+     model = 1;
+   if( shape_d > 25 )
+     model_d = 1;
+   
    if( strlen(outfile) != 0 ){
-      HLasso HL( logistic,
-		 infile, targetfile, infile_d,
-		 model, penalty, shape, scale,
-		 model_d, penalty_d, shape_d, scale_d,
-		 std, std_d, disease_models, alpha, alpha_d,
-		 BF, GW_BFfile, BFfile );
-      HL.setOutputFiles( outfile );
-      short samples=0;
-      if( null == 0 )
-         samples = 1;
-      else
-         samples = null;
-      HL.OpenOutFiles();
-      for( int i = 0; i < samples; i++ ){
-         if( null > 0 )
-            HL.permute_outcome();
-         HL.runCLG( iter, mle_start, permute );
-// 	 if( threshold > 0 )
-// 	   HL.CalculatePvalues(threshold);
-      }
-      HL.CloseOutFiles();
+     HLasso HL( logistic, infile, targetfile, infile_d, plinkfile );
+     HL.SetParams( model, penalty, shape, scale,
+		   model_d, penalty_d, shape_d, scale_d,
+		   std, std_d, disease_models, alpha, alpha_d,
+		   BF, GW_BFfile, BFfile );
+     short samples=0;
+     if( null != 0 )
+       samples = null;
+     else if( stability != 0 ){
+       samples = stability;
+       HL.OpenSelectionProbFile(outfile);
+     }
+     else
+       samples = 1;
+     HL.OpenOutFiles(outfile);
+     bool first_model=true;
+     for( int i = 0; i < samples; i++ ){
+       cout << i << endl;
+       if( null != 0 )
+	 HL.permute_outcome();
+       if( stability != 0 ){
+	 HL.SampleRows();
+	 HL.SetParams( model, penalty, shape, scale,
+		       model_d, penalty_d, shape_d, scale_d,
+		       std, std_d, disease_models, alpha, alpha_d,
+		       BF, GW_BFfile, BFfile );
+       }
+       HL.runCLG( iter, mle_start, permute, first_model );
+       first_model=false;
+       permute=true;
+     }
+     if( stability != 0 )
+       HL.WriteSelectionProbs(stability);
+     int ii = samples*iter;
+     HL.CloseOutFiles(ii);
    }
-//    else if( strlen(modefile) != 0 ){
-//       HLasso HL( iter, infile, penalty, gamma, pi, prec, VSP );
-//       HL.setBeta( modefile );
-//       HL.getLogPosterior();
-//    }
-//    else{
-//       HLasso HL( iter, infile, penalty, gamma, pi, prec, VSP );
-//       HL.test();
-//    }
 }
