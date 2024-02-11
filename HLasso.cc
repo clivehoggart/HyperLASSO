@@ -54,7 +54,7 @@ HLasso::HLasso( bool ilogistic,
      y.resize(n);
      yy.resize(n);
      string t;
-     short observation = 0;
+     long observation = 0;
      for( unsigned int i = 0; i < n; i++ ){
        if( target[0].size() == 1 )
 	 t = target[i][0];
@@ -135,6 +135,7 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
    unsigned short xx, XX;
    unsigned long obs=0;
    for( unsigned int j = 0; j < p; j++ ){
+     cout << "Reading SNP " << j << endl;
       mean[j].resize(disease_models);
       info[j].resize(disease_models);
       sd[j].resize(disease_models);
@@ -142,12 +143,12 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
       lambda[j].resize(disease_models,shape);
       gamma[j].resize(disease_models,scale);
       for( short type = 0; type < disease_models; type++ ){
-         s2 = 0.0;
+	s2 = 0.0;
          obs = 0;
 	 mean[j][type] = 0.0;
 	 info[j][type] = 0.0;
-	 for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-	   unsigned short i = SelectedRows[ii];
+	 for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+	   unsigned long i = SelectedRows[ii];
             if( !missing[i*p+j] ){
                obs++;
 	       XX = (short)X[0][i*p+j] + (short)X[1][i*p+j];
@@ -175,6 +176,7 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
          }
          mean[j][type] /= obs;
 	 s2 = sqrt(s2/obs - mean[j][type]*mean[j][type]);
+	 cout << s2 << endl;
 	 if( s2 == 0 ){
 	   cout << "Warning, variable " << Labels[j] << " at position " << j  << " is monomorphic for effect type " << type << endl;
 	   sd[j][type] = 1;
@@ -192,8 +194,8 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
      mean_d[j] = 0.0;
      sd_d[j] = 0.0;
      obs=0;
-     for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-       unsigned short i = SelectedRows[ii];
+     for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+       unsigned long i = SelectedRows[ii];
        if( !missing_d[i*p2+j] ){
 	 obs++;
 	 mean_d[j] += X_d[i*p2+j];
@@ -208,22 +210,22 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
      }
      if( !standardize_d )
        sd_d[j] = 1.0;
-     for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-       unsigned short i = SelectedRows[ii];
+     for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+       unsigned long i = SelectedRows[ii];
        X_d[i*p2+j] = (X_d[i*p2+j]-mean_d[j])/sd_d[j];
      }
    }
 
    beta_shrinkage = new double[p];
    beta_type = new short[p];
-   short n0=0,n1=0;
+   long n0=0,n1=0;
    double sum=0,sum2=0;
    obs = 0;
    if( logistic ){
       data_mean = 0;
       data_sd = 1;
-      for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-	unsigned short i = SelectedRows[ii];
+      for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+	unsigned long i = SelectedRows[ii];
          if( y[i]==1 )
 	   n1++;
 	 else if( y[i]==-1 )
@@ -235,8 +237,8 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
 	  penalty[j].assign( disease_models, sqrt( (double)(n0*n1)/(n0+n1) ) * gsl_cdf_ugaussian_Pinv( 1-alpha/2) );
       }
    }else{
-     for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-       unsigned short i = SelectedRows[ii];
+     for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+       unsigned long i = SelectedRows[ii];
        sum += yy[i];
        sum2 += yy[i]*yy[i];
      }
@@ -244,8 +246,8 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
      data_sd = sqrt(sum2/SelectedRows.size() - data_mean*data_mean);
      cout << data_mean << " " << SelectedRows.size() << endl;
      cout << "sd: " << data_sd << endl;
-     for( unsigned short ii = 0; ii < SelectedRows.size(); ii++ ){
-       unsigned short i = SelectedRows[ii];
+     for( unsigned long ii = 0; ii < SelectedRows.size(); ii++ ){
+       unsigned long i = SelectedRows[ii];
        yy[i] = (yy[i]-data_mean)/data_sd;
      }
      beta0 = 0;
@@ -429,7 +431,7 @@ void HLasso::permute_outcome()
   }
 }
 
-void HLasso::runCLG(unsigned short iSamples,
+void HLasso::runCLG(unsigned long iSamples,
 		    bool mle_start, bool permute, bool ifirst_model )
 {
   unsigned short iter, Samples = iSamples;
