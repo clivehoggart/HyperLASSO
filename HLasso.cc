@@ -431,7 +431,7 @@ void HLasso::permute_outcome()
   }
 }
 
-void HLasso::runCLG(unsigned long iSamples,
+void HLasso::runCLG(unsigned short iSamples,
 		    bool mle_start, bool permute, bool ifirst_model )
 {
   unsigned short iter, Samples = iSamples;
@@ -615,7 +615,7 @@ void HLasso::OpenOutFiles(char* outfilename)
 }
 
 
-void HLasso::CloseOutFiles(int samples)
+void HLasso::CloseOutFiles(unsigned int samples)
 {
    outfile << "),.Names = c(";
    for(unsigned int kk = 0; kk < (samples-1); kk++ ){
