@@ -251,8 +251,10 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
        yy[i] = (yy[i]-data_mean)/data_sd;
      }
      beta0 = 0;
-     if( alpha != 0 )
-       penalty.assign( p, sqrt(n) * gsl_cdf_ugaussian_Pinv( 1-alpha/2) );
+     if( alpha != 0 ){
+       for( unsigned int j = 0; j < p; j++ )
+	 penalty[j].assign( disease_models, sqrt(n) * gsl_cdf_ugaussian_Pinv( 1-alpha/2) );
+     }
    }
 
    for( unsigned int j = 0; j < p; j++ ){
