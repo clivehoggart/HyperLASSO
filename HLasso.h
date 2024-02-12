@@ -86,7 +86,7 @@ public:
   void runCLG( unsigned short, bool, bool, bool );
   void OpenOutFiles(char*);
   void OpenSelectionProbFile(char*);
-  void CloseOutFiles(int);
+  void CloseOutFiles(unsigned int);
   void readFile2( const char*, const char*, bool, bool );
   void SetBF( const char *fname );
   void SetGW_BF( double BF, const char *fname );
