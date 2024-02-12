@@ -71,7 +71,7 @@ class CLG
 
 private:
   bool BF_implement;
-  unsigned short TotalObservations;
+  unsigned long TotalObservations;
   double getXij( short, double, double, short, bool );
 
   /* double LogDeterminantInfo(double*, short*, double*,  */
