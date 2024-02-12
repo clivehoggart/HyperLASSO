@@ -135,7 +135,7 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
    unsigned short xx, XX;
    unsigned long obs=0;
    for( unsigned int j = 0; j < p; j++ ){
-     cout << "Reading SNP " << j << endl;
+     //     cout << "Reading SNP " << j << endl;
       mean[j].resize(disease_models);
       info[j].resize(disease_models);
       sd[j].resize(disease_models);
@@ -176,7 +176,7 @@ void HLasso::SetParams( unsigned short iprior, double ipenalty, double shape,
          }
          mean[j][type] /= obs;
 	 s2 = sqrt(s2/obs - mean[j][type]*mean[j][type]);
-	 cout << s2 << endl;
+	 //	 cout << s2 << endl;
 	 if( s2 == 0 ){
 	   cout << "Warning, variable " << Labels[j] << " at position " << j  << " is monomorphic for effect type " << type << endl;
 	   sd[j][type] = 1;
